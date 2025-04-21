@@ -15,18 +15,20 @@ const haversineDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 exports.addSchool = async (req, res) => {
-  const { name, address, latitude, longitude } = req.body;
+  console.log('📦 Incoming request:', req.body);
 
-  if (!name || !address || isNaN(latitude) || isNaN(longitude)) {
+  const {id, name, address, latitude, longitude } = req.body;
+
+  if (!id || !name || !address || isNaN(latitude) || isNaN(longitude)) {
     return res.status(400).json({ message: 'Invalid input data.' });
   }
 
   try {
     const [result] = await db.execute(
-      'INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)',
-      [name, address, latitude, longitude]
+      'INSERT INTO schools (id, name, address, latitude, longitude) VALUES (?, ?, ?, ?, ?)',
+      [id, name, address, latitude, longitude]
     );
-    res.status(201).json({ message: 'School added.', schoolId: result.insertId });
+    res.status(201).json({ message: 'School added.', schoolId: id });
   } catch (err) {
     res.status(500).json({ error: 'Database error.' });
   }
@@ -40,6 +42,7 @@ exports.listSchools = async (req, res) => {
   }
 
   try {
+
     const [schools] = await db.execute('SELECT * FROM schools');
 
     const sortedSchools = schools.map((school) => ({
